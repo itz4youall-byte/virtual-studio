@@ -115,6 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initAiEnhance(); initProviderModal(); initCanvasPromptOverride();
   loadLooksFromStorage(); loadSettingsFromStorage();
   updateGenerateState();
+  // Auto-open AI Engine modal on first visit if no token saved
+  if (!localStorage.getItem('vs_hf_token') && !localStorage.getItem('vs_openai_key')) {
+    setTimeout(() => openProviderModal(), 800);
+  }
 });
 
 // ─────────────────────────────────────── BANNER ────
@@ -378,47 +382,37 @@ function openProviderModal() {
   if (state.quality) $('apikey-quality-select').value=state.quality;
 }
 
-async function saveProviderSettings() {
-  const selected = document.querySelector('input[name="provider"]:checked')?.value || 'pollinations';
+function saveProviderSettings() {
+  return saveProviderSettingsAsync();
+}
+async function saveProviderSettingsAsync() {
+  const selected = document.querySelector('input[name="provider"]:checked')?.value || 'huggingface';
   const btn = $('btn-apikey-save');
   btn.textContent = 'Saving…'; btn.disabled = true;
   $('apikey-status').style.display = 'none';
 
   try {
-    if (selected === 'pollinations') {
-      state.provider = 'pollinations';
-      state.pollinationsModel = $('pollinations-model-select').value;
-      saveSettingsToStorage();
-      setApikeyStatus('✅ Pollinations AI is ready! No key needed.', 'success');
-      updateKeyIndicator(true, 'pollinations');
-      showToast('🌸 Pollinations AI activated — completely free!', 'success');
-      setTimeout(() => $('apikey-modal').style.display='none', 1400);
-
-    } else if (selected === 'huggingface') {
+    if (selected === 'huggingface') {
       const token = $('hf-token-input').value.trim();
       if (!token) { setApikeyStatus('Please enter your Hugging Face token', 'error'); return; }
       if (!token.startsWith('hf_')) { setApikeyStatus('Invalid token. HF tokens start with "hf_"', 'error'); return; }
-
-      // Quick auth check
       const res = await fetch('https://huggingface.co/api/whoami-v2', {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) { setApikeyStatus('Invalid Hugging Face token. Please check and try again.', 'error'); return; }
-
       state.provider = 'huggingface';
       state.hfToken  = token;
       state.hfModel  = $('hf-model-select').value;
       saveSettingsToStorage();
-      setApikeyStatus('✅ Hugging Face connected!', 'success');
+      setApikeyStatus('✅ Hugging Face connected! Ready to generate.', 'success');
       updateKeyIndicator(true, 'huggingface');
-      showToast('🤗 Hugging Face connected!', 'success');
+      showToast('🤗 Hugging Face connected — free AI generation ready!', 'success');
       setTimeout(() => $('apikey-modal').style.display='none', 1400);
 
     } else if (selected === 'openai') {
       const key = $('apikey-input').value.trim();
       if (!key) { setApikeyStatus('Please enter your OpenAI API key', 'error'); return; }
       if (!key.startsWith('sk-')) { setApikeyStatus('Invalid key. OpenAI keys start with "sk-"', 'error'); return; }
-
       const res = await fetch('https://api.openai.com/v1/models', {
         headers: { 'Authorization': `Bearer ${key}` },
       });
@@ -427,7 +421,6 @@ async function saveProviderSettings() {
         setApikeyStatus(`OpenAI error: ${err.error?.message || res.statusText}`, 'error');
         return;
       }
-
       state.provider = 'openai'; state.apiKey = key;
       state.aiModel  = $('apikey-model-select').value;
       state.quality  = $('apikey-quality-select').value;
@@ -440,7 +433,7 @@ async function saveProviderSettings() {
   } catch (err) {
     setApikeyStatus(`Connection error: ${err.message}`, 'error');
   } finally {
-    btn.textContent = 'Save & Use →'; btn.disabled = false;
+    btn.textContent = 'Save & Connect'; btn.disabled = false;
   }
 }
 
@@ -477,32 +470,21 @@ function saveSettingsToStorage() {
 function loadSettingsFromStorage() {
   try {
     const p = localStorage.getItem('vs_provider');
-    const onFileProtocol = location.protocol === 'file:';
-
     if (p) {
       state.provider          = p;
-      state.pollinationsModel = localStorage.getItem('vs_poll_model') || 'flux';
+      state.pollinationsModel = 'flux';
       state.hfToken           = localStorage.getItem('vs_hf_token') || '';
       state.hfModel           = localStorage.getItem('vs_hf_model') || 'black-forest-labs/FLUX.1-schnell';
       state.apiKey            = localStorage.getItem('vs_openai_key');
       state.aiModel           = localStorage.getItem('vs_ai_model') || 'dall-e-3';
       state.quality           = localStorage.getItem('vs_ai_quality') || 'standard';
-
-      // AUTO-FIX: HF doesn't work from file:// (CORS). Switch silently to Pollinations.
-      if (onFileProtocol && state.provider === 'huggingface') {
-        state.provider = 'pollinations';
-        localStorage.setItem('vs_provider', 'pollinations');
-      }
-
       updateKeyIndicator(true, state.provider);
     } else {
-      // First launch — Pollinations works everywhere, no setup needed
-      state.provider          = 'pollinations';
-      state.pollinationsModel = 'flux';
-      state.hfToken           = '';
-      state.hfModel           = 'black-forest-labs/FLUX.1-schnell';
+      // First launch — default to Hugging Face (free)
+      state.provider = 'huggingface';
+      state.hfModel  = 'black-forest-labs/FLUX.1-schnell';
       saveSettingsToStorage();
-      updateKeyIndicator(true, 'pollinations');
+      updateKeyIndicator(false, 'huggingface');
     }
   } catch(e) {}
 }
@@ -617,21 +599,19 @@ async function startGeneration() {
 
   try {
     let imageUrls=[];
-
-    if (state.provider==='pollinations') {
-      imageUrls = await generatePollinations(prompt, steps, bar);
-    } else if (state.provider==='huggingface') {
+    if (state.provider==='huggingface') {
       imageUrls = await generateHuggingFace(prompt, steps, bar);
     } else if (state.provider==='openai') {
       imageUrls = await generateOpenAI(prompt, steps, bar);
     } else {
-      // fallback simulated
-      await simulateSteps(steps, bar);
-      imageUrls = null;
+      // No provider configured — open modal
+      state.generating=false; resetGenerateButton();
+      genEl.style.display='none'; $('canvas-empty').style.display='flex';
+      openProviderModal();
+      showToast('Please connect an AI provider first', 'info');
+      return;
     }
-
     finishGeneration(imageUrls);
-
   } catch (err) {
     console.error(err);
     state.generating=false; resetGenerateButton();
@@ -640,43 +620,7 @@ async function startGeneration() {
   }
 }
 
-// ══════════════════ POLLINATIONS AI (FREE, NO KEY) ══════════════════
-async function generatePollinations(prompt, steps, bar) {
-  const count  = state.controls.numImages;
-  const aspect = state.controls.aspect;
-  const model  = state.pollinationsModel || 'flux';
-  const [w, h] = POLL_SIZES[aspect].split('x').map(Number);
-
-  activateStep(steps,1,bar,30);
-  await sleep(200);
-  activateStep(steps,2,bar,55);
-
-  // Build all image URLs (different seeds = different images)
-  const urls = Array.from({length: count}, (_,i) => {
-    const seed = (Date.now() + i * 137) % 99999;
-    return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&seed=${seed}&model=${model}&nologo=true&enhance=true`;
-  });
-
-  activateStep(steps,3,bar,80);
-  // Pre-load them all in parallel (browser will fetch them)
-  await Promise.all(urls.map(url => preloadImage(url)));
-  activateStep(steps,4,bar,100);
-  await sleep(200);
-  return urls;
-}
-
-function preloadImage(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload  = () => resolve(url);
-    img.onerror = () => reject(new Error(`Failed to load image from ${url}`));
-    img.src     = url;
-    // Allow generous timeout for free API
-    setTimeout(() => resolve(url), 30000);
-  });
-}
-
-// ══════════════════ HUGGING FACE (FREE ACCOUNT) ══════════════════
+// ══════════════════ HUGGING FACE (FREE) ══════════════════
 async function generateHuggingFace(prompt, steps, bar) {
   const count  = state.controls.numImages;
   const aspect = state.controls.aspect;

@@ -811,20 +811,10 @@
       <!-- Provider Selection -->
       <div class="provider-section">
         <label class="ctrl-label">Choose Provider</label>
-        <div class="provider-cards">
-
-          <label class="provider-card" id="pcard-pollinations">
-            <input type="radio" name="provider" value="pollinations" id="prov-pollinations" checked />
-            <div class="pcard-inner">
-              <div class="pcard-badge free">FREE</div>
-              <div class="pcard-icon">🌸</div>
-              <div class="pcard-name">Pollinations AI</div>
-              <div class="pcard-desc">No account needed. Unlimited free generation using FLUX.</div>
-            </div>
-          </label>
+        <div class="provider-cards" style="grid-template-columns:1fr 1fr;">
 
           <label class="provider-card" id="pcard-huggingface">
-            <input type="radio" name="provider" value="huggingface" id="prov-huggingface" />
+            <input type="radio" name="provider" value="huggingface" id="prov-huggingface" checked />
             <div class="pcard-inner">
               <div class="pcard-badge free">FREE</div>
               <div class="pcard-icon">🤗</div>
@@ -843,26 +833,6 @@
             </div>
           </label>
 
-        </div>
-      </div>
-
-      <!-- Pollinations Settings -->
-      <div class="provider-settings" id="settings-pollinations">
-        <div class="apikey-info" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);">
-          <div class="apikey-info-icon">✅</div>
-          <div>
-            <p><strong>No API key required!</strong> Pollinations AI is completely free.</p>
-            <p class="apikey-note">Powered by FLUX — high quality, fast image generation. Just click Save &amp; Use below.</p>
-          </div>
-        </div>
-        <div class="apikey-model-row">
-          <label class="ctrl-label" for="pollinations-model-select">FLUX Model</label>
-          <select class="ctrl-select" id="pollinations-model-select">
-            <option value="flux">FLUX (Balanced — Recommended)</option>
-            <option value="flux-realism">FLUX Realism (Photorealistic)</option>
-            <option value="turbo">Turbo (Fastest)</option>
-            <option value="flux-anime">FLUX Anime (Stylized)</option>
-          </select>
         </div>
       </div>
 
