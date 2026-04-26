@@ -660,11 +660,8 @@
     <div class="apikey-body">
       <div class="provider-section">
         <label class="ctrl-label">Choose Provider</label>
-        <div class="provider-cards">
-          <label class="provider-card"><input type="radio" name="provider" value="pollinations" id="prov-pollinations" checked />
-            <div class="pcard-inner"><div class="pcard-badge free">FREE</div><div class="pcard-icon">🌸</div><div class="pcard-name">Pollinations AI</div><div class="pcard-desc">No account. Unlimited FLUX generation.</div></div>
-          </label>
-          <label class="provider-card"><input type="radio" name="provider" value="huggingface" id="prov-huggingface" />
+        <div class="provider-cards" style="grid-template-columns:1fr 1fr;">
+          <label class="provider-card"><input type="radio" name="provider" value="huggingface" id="prov-huggingface" checked />
             <div class="pcard-inner"><div class="pcard-badge free">FREE</div><div class="pcard-icon">🤗</div><div class="pcard-name">Hugging Face</div><div class="pcard-desc">Free HF account token. FLUX.1-schnell.</div></div>
           </label>
           <label class="provider-card"><input type="radio" name="provider" value="openai" id="prov-openai" />
@@ -672,21 +669,7 @@
           </label>
         </div>
       </div>
-      <div class="provider-settings" id="settings-pollinations">
-        <div class="apikey-info" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);">
-          <div class="apikey-info-icon">✅</div>
-          <div><p><strong>No API key required!</strong></p><p class="apikey-note">Powered by FLUX — free, unlimited generation.</p></div>
-        </div>
-        <div class="apikey-model-row">
-          <label class="ctrl-label">FLUX Model</label>
-          <select class="ctrl-select" id="pollinations-model-select">
-            <option value="flux">FLUX (Balanced)</option>
-            <option value="flux-realism">FLUX Realism</option>
-            <option value="turbo">Turbo (Fastest)</option>
-          </select>
-        </div>
-      </div>
-      <div class="provider-settings" id="settings-huggingface" style="display:none;">
+      <div class="provider-settings" id="settings-huggingface">
         <div class="apikey-input-wrap">
           <label class="ctrl-label">HF Token</label>
           <div class="apikey-field-row">

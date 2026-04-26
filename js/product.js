@@ -85,8 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initProviderModal(); initCanvasPromptOverride();
   loadLooksFromStorage();
   loadSettingsFromStorage();
-  updateKeyIndicator(true, 'pollinations');
   updateGenerateState();
+
+  // Auto-open AI Engine modal on first visit if no token saved
+  if (!localStorage.getItem('vs_hf_token') && !localStorage.getItem('vs_openai_key')) {
+    setTimeout(() => openProviderModal(), 800);
+  }
 });
 
 // ─────────────────────────────────────── BANNER ────
@@ -450,10 +454,17 @@ async function startGeneration(){
 
   try{
     let urls=[];
-    if(state.provider==='pollinations') urls=await genPollinations(prompt,steps,bar);
-    else if(state.provider==='huggingface') urls=await genHuggingFace(prompt,steps,bar);
-    else if(state.provider==='openai') urls=await genOpenAI(prompt,steps,bar);
-    else{await simSteps(steps,bar);urls=null;}
+    if(state.provider==='huggingface') {
+      urls=await genHuggingFace(prompt,steps,bar);
+    } else if(state.provider==='openai') {
+      urls=await genOpenAI(prompt,steps,bar);
+    } else {
+      state.generating=false; resetBtn();
+      genEl.style.display='none'; $('canvas-empty').style.display='flex';
+      openProviderModal();
+      showToast('Please connect an AI provider first', 'info');
+      return;
+    }
     finishGeneration(urls);
   }catch(err){
     console.error(err);state.generating=false;resetBtn();
@@ -461,22 +472,6 @@ async function startGeneration(){
     showToast(`Generation failed: ${err.message}`,'error');
   }
 }
-
-// ── Pollinations ──
-async function genPollinations(prompt,steps,bar){
-  const count=state.controls.numImages,aspect=state.controls.aspect,model=state.pollinationsModel||'flux';
-  const[w,h]=POLL_SIZES[aspect].split('x').map(Number);
-  activateStep(steps,1,bar,30);await sleep(200);activateStep(steps,2,bar,55);
-  const urls=Array.from({length:count},(_,i)=>{
-    const seed=(Date.now()+i*137)%99999;
-    return`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&seed=${seed}&model=${model}&nologo=true&enhance=true`;
-  });
-  activateStep(steps,3,bar,80);
-  await Promise.all(urls.map(url=>preloadImage(url)));
-  activateStep(steps,4,bar,100);await sleep(200);
-  return urls;
-}
-function preloadImage(url){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(url);img.onerror=()=>rej(new Error('Image load failed'));img.src=url;setTimeout(()=>res(url),30000);});}
 
 // ── Hugging Face ──
 async function genHuggingFace(prompt,steps,bar){
@@ -493,25 +488,12 @@ async function genHuggingFace(prompt,steps,bar){
   });
   activateStep(steps,3,bar,80);
 
-  let results;
-  try {
-    results = await Promise.allSettled(reqs);
-  } catch(netErr) {
-    showToast('🌸 Switching to Pollinations AI (HF needs HTTPS)','info');
-    state.provider='pollinations'; saveSettings(); updateKeyIndicator(true,'pollinations');
-    return await genPollinations(prompt,steps,bar);
-  }
+  let results = await Promise.allSettled(reqs);
 
   activateStep(steps,4,bar,100);await sleep(200);
   const urls=results.filter(r=>r.status==='fulfilled').map(r=>r.value);
   const errs=results.filter(r=>r.status==='rejected').map(r=>r.reason?.message);
   if(!urls.length){
-    const isNet=errs.some(e=>e&&(e.includes('fetch')||e.includes('network')||e.includes('CORS')));
-    if(isNet){
-      showToast('🌸 Auto-switching to Pollinations AI','info');
-      state.provider='pollinations'; saveSettings(); updateKeyIndicator(true,'pollinations');
-      return await genPollinations(prompt,steps,bar);
-    }
     throw new Error(errs[0]||'HF requests failed');
   }
   if(errs.length)showToast(`${errs.length} image(s) failed`,'info');
@@ -644,7 +626,7 @@ function initProviderModal(){
   $('btn-apikey-toggle')?.addEventListener('click',()=>{const i=$('apikey-input');i.type=i.type==='password'?'text':'password';});
   $('btn-hf-toggle')?.addEventListener('click',()=>{const i=$('hf-token-input');i.type=i.type==='password'?'text':'password';});
   $('btn-apikey-save')?.addEventListener('click',saveProvider);
-  $('btn-apikey-clear')?.addEventListener('click',()=>{state.provider='pollinations';try{localStorage.removeItem('vs_provider');}catch(e){}$('prov-pollinations').checked=true;document.querySelectorAll('.provider-settings').forEach(s=>s.style.display='none');$('settings-pollinations').style.display='flex';updateKeyIndicator(true,'pollinations');showToast('Reset to free Pollinations AI','info');$('apikey-modal').style.display='none';});
+  $('btn-apikey-clear')?.addEventListener('click',()=>{state.provider='huggingface';try{localStorage.removeItem('vs_provider');}catch(e){}$('prov-huggingface').checked=true;document.querySelectorAll('.provider-settings').forEach(s=>s.style.display='none');$('settings-huggingface').style.display='flex';updateKeyIndicator(true,'huggingface');showToast('Reset to default','info');$('apikey-modal').style.display='none';});
 }
 
 function openProviderModal(){
@@ -657,14 +639,13 @@ function openProviderModal(){
 }
 
 async function saveProvider(){
-  const sel=document.querySelector('input[name="provider"]:checked')?.value||'pollinations';
+  const sel=document.querySelector('input[name="provider"]:checked')?.value||'huggingface';
   const btn=$('btn-apikey-save');btn.textContent='Saving…';btn.disabled=true;$('apikey-status').style.display='none';
   try{
-    if(sel==='pollinations'){state.provider='pollinations';state.pollinationsModel=$('pollinations-model-select').value;saveSettings();setStatus('✅ Pollinations AI ready! Completely free.','success');updateKeyIndicator(true,'pollinations');showToast('🌸 Free AI activated!','success');setTimeout(()=>$('apikey-modal').style.display='none',1400);}
-    else if(sel==='huggingface'){const t=$('hf-token-input').value.trim();if(!t){setStatus('Enter your HF token','error');return;}const r=await fetch('https://huggingface.co/api/whoami-v2',{headers:{'Authorization':`Bearer ${t}`}});if(!r.ok){setStatus('Invalid HF token','error');return;}state.provider='huggingface';state.hfToken=t;saveSettings();setStatus('✅ Hugging Face connected!','success');updateKeyIndicator(true,'huggingface');showToast('🤗 HF connected!','success');setTimeout(()=>$('apikey-modal').style.display='none',1400);}
+    if(sel==='huggingface'){const t=$('hf-token-input').value.trim();if(!t){setStatus('Enter your HF token','error');return;}const r=await fetch('https://huggingface.co/api/whoami-v2',{headers:{'Authorization':`Bearer ${t}`}});if(!r.ok){setStatus('Invalid HF token','error');return;}state.provider='huggingface';state.hfToken=t;saveSettings();setStatus('✅ Hugging Face connected! Ready to generate.','success');updateKeyIndicator(true,'huggingface');showToast('🤗 HF connected! Free AI generation ready.','success');setTimeout(()=>$('apikey-modal').style.display='none',1400);}
     else{const k=$('apikey-input').value.trim();if(!k){setStatus('Enter your OpenAI key','error');return;}const r=await fetch('https://api.openai.com/v1/models',{headers:{'Authorization':`Bearer ${k}`}});if(!r.ok){const e=await r.json().catch(()=>({}));setStatus(`OpenAI error: ${e.error?.message||r.statusText}`,'error');return;}state.provider='openai';state.apiKey=k;state.aiModel=$('apikey-model-select').value;state.quality=$('apikey-quality-select').value;saveSettings();setStatus('✅ OpenAI connected!','success');updateKeyIndicator(true,'openai');showToast('⚡ OpenAI connected!','success');setTimeout(()=>$('apikey-modal').style.display='none',1400);}
   }catch(err){setStatus(`Error: ${err.message}`,'error');}
-  finally{btn.textContent='Save & Use →';btn.disabled=false;}
+  finally{btn.textContent='Save & Connect';btn.disabled=false;}
 }
 function setStatus(m,t){const el=$('apikey-status');if(!el)return;el.textContent=m;el.className=`apikey-status ${t}`;el.style.display='block';}
 function saveSettings(){try{localStorage.setItem('vs_provider',state.provider);localStorage.setItem('vs_poll_model',state.pollinationsModel);if(state.hfToken)localStorage.setItem('vs_hf_token',state.hfToken);if(state.apiKey)localStorage.setItem('vs_openai_key',state.apiKey);if(state.aiModel)localStorage.setItem('vs_ai_model',state.aiModel);if(state.quality)localStorage.setItem('vs_ai_quality',state.quality);}catch(e){}}
@@ -673,20 +654,19 @@ function loadSettingsFromStorage(){
     const p=localStorage.getItem('vs_provider');
     if(p){
       state.provider=p;
-      state.pollinationsModel=localStorage.getItem('vs_poll_model')||'flux';
-      state.hfToken=localStorage.getItem('vs_hf_token');
+      state.hfToken=localStorage.getItem('vs_hf_token')||'';
       state.hfModel=localStorage.getItem('vs_hf_model')||'black-forest-labs/FLUX.1-schnell';
       state.apiKey=localStorage.getItem('vs_openai_key');
       state.aiModel=localStorage.getItem('vs_ai_model')||'dall-e-3';
       state.quality=localStorage.getItem('vs_ai_quality')||'standard';
       updateKeyIndicator(true,p);
     } else {
-      // First launch — pre-configure Hugging Face with user's token
+      // First launch — default Hugging Face
       state.provider  = 'huggingface';
       state.hfToken   = '';
       state.hfModel   = 'black-forest-labs/FLUX.1-schnell';
       saveSettings();
-      updateKeyIndicator(true,'huggingface');
+      updateKeyIndicator(false,'huggingface');
     }
   }catch(e){}
 }
