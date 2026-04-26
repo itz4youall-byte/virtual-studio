@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Virtual Studio — Product Photo Generator</title>
+  <meta name="description" content="Generate stunning AI product photos with a virtual studio. Upload a model and apparel to create professional e-commerce imagery in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ HEADER ══ -->
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#7c3aed"/>
+              <stop offset="100%" stop-color="#db2777"/>
+            </linearGradient>
+          </defs>
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+          <path d="M8 20L12 12L16 18L20 10L24 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="22" cy="10" r="2" fill="white"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">Virtual Studio</span>
+        <span class="logo-sub">AI Photo Generator</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="header-tabs" role="tablist">
+    <button class="header-tab active" id="tab-apparel" data-panel="apparel" role="tab" aria-selected="true">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 00-.832.445l-7 10A1 1 0 003 14h4v3a1 1 0 001 1h4a1 1 0 001-1v-3h4a1 1 0 00.832-1.555l-7-10A1 1 0 0010 2z" clip-rule="evenodd"/></svg>
+      Apparel
+    </button>
+    <button class="header-tab" id="tab-product" data-panel="product" role="tab" aria-selected="false" onclick="window.open('product.html','_blank')">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+      Product
+      <span class="tab-new-badge">↗</span>
+    </button>
+  </nav>
+
+  <div class="header-right">
+    <button class="btn-ghost" id="btn-community">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+      Community
+    </button>
+    <button class="btn-apikey" id="btn-open-apikey" title="Set OpenAI API Key">
+      <span class="apikey-dot" id="apikey-dot"></span>
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/></svg>
+      API Key
+    </button>
+    <button class="btn-primary-sm" id="btn-register">Register Now</button>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════ WHATSAPP BANNER ══ -->
+<div class="wa-banner" id="wa-banner">
+  <div class="wa-banner-inner">
+    <div class="wa-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </div>
+    <div class="wa-text">
+      <strong>Learn AI Photoshoot &amp; Viral Videos</strong>
+      <span>Join our WhatsApp Community to attend live sessions</span>
+    </div>
+    <a href="https://wa.me/1234567890" target="_blank" class="btn-wa">Join Community</a>
+    <button class="wa-close" id="wa-close" aria-label="Close banner">×</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ MAIN LAYOUT ══ -->
+<main class="studio-layout">
+
+  <!-- ──────────────────────────── LEFT PANEL ── -->
+  <aside class="panel panel-left" id="panel-left">
+    <div class="panel-header">
+      <h2 class="panel-title">Inputs</h2>
+    </div>
+
+    <!-- MODEL SECTION -->
+    <div class="input-section" id="section-model">
+      <div class="section-label">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+        Model
+      </div>
+
+      <div class="upload-zone" id="model-upload-zone" data-target="model">
+        <div class="upload-preview" id="model-preview" style="display:none;">
+          <img id="model-preview-img" src="" alt="Model preview" />
+          <button class="preview-remove" data-target="model" aria-label="Remove model">×</button>
+        </div>
+        <div class="upload-placeholder" id="model-placeholder">
+          <div class="upload-icon-wrap">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="18" r="8" stroke="url(#uGrad1)" stroke-width="2"/>
+              <path d="M8 42c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="url(#uGrad1)" stroke-width="2" stroke-linecap="round"/>
+              <defs><linearGradient id="uGrad1" x1="8" y1="8" x2="40" y2="40"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs>
+            </svg>
+          </div>
+          <p class="upload-title">Upload Your Model</p>
+          <p class="upload-sub">Drag 'n' drop or click to browse</p>
+          <input type="file" id="model-file-input" accept="image/*" hidden />
+        </div>
+      </div>
+
+      <div class="upload-divider"><span>OR</span></div>
+
+      <button class="btn-outline-full" id="btn-webcam">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        Use Webcam
+      </button>
+    </div>
+
+    <!-- APPAREL SECTION -->
+    <div class="input-section" id="section-apparel">
+      <div class="section-label">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 00-.832.445l-7 10A1 1 0 003 14h4v3a1 1 0 001 1h4a1 1 0 001-1v-3h4a1 1 0 00.832-1.555l-7-10A1 1 0 0010 2z" clip-rule="evenodd"/></svg>
+        Apparel
+      </div>
+
+      <div class="upload-zone" id="apparel-upload-zone" data-target="apparel">
+        <div class="upload-preview" id="apparel-preview" style="display:none;">
+          <img id="apparel-preview-img" src="" alt="Apparel preview" />
+          <button class="preview-remove" data-target="apparel" aria-label="Remove apparel">×</button>
+        </div>
+        <div class="upload-placeholder" id="apparel-placeholder">
+          <div class="upload-icon-wrap">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 8L8 16l4 4 4-4v20h16V16l4 4 4-4-8-8h-4c0 2.21-1.79 4-4 4s-4-1.79-4-4h-4z" stroke="url(#uGrad2)" stroke-width="2" stroke-linejoin="round"/>
+              <defs><linearGradient id="uGrad2" x1="8" y1="8" x2="40" y2="40"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs>
+            </svg>
+          </div>
+          <p class="upload-title">Upload Apparel</p>
+          <p class="upload-sub">Flat lay or on-hanger photo</p>
+          <input type="file" id="apparel-file-input" accept="image/*" hidden />
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMPT SECTION -->
+    <div class="input-section" id="section-prompt">
+      <div class="section-label">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/></svg>
+        Prompt
+      </div>
+      <div class="prompt-wrap">
+        <textarea id="main-prompt" placeholder="Describe your shoot: model poses, clothing details, mood, scene…" rows="4" maxlength="500"></textarea>
+        <div class="prompt-footer">
+          <span class="char-counter" id="prompt-counter">0/500</span>
+          <button class="btn-ai-enhance" id="btn-enhance-prompt">✨ AI Enhance</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE BUTTON (left panel mobile) -->
+    <div class="generate-section-left">
+      <button class="btn-generate" id="btn-generate-main">
+        <span class="btn-generate-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </span>
+        <span class="btn-generate-text">Generate</span>
+        <span class="btn-generate-badge">AI</span>
+      </button>
+      <p class="generate-hint" id="generate-hint">Please add a model and apparel to start.</p>
+    </div>
+  </aside>
+
+  <!-- ──────────────────────────── CENTER CANVAS ── -->
+  <section class="studio-canvas" id="studio-canvas">
+    <div class="canvas-topbar">
+      <div class="canvas-title">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+        Virtual Studio Canvas
+      </div>
+      <div class="canvas-actions" id="canvas-actions" style="display:none;">
+        <button class="canvas-action-btn" id="btn-download-all" aria-label="Download all">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Download All
+        </button>
+        <button class="canvas-action-btn" id="btn-clear-canvas" aria-label="Clear canvas">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="canvas-empty" id="canvas-empty">
+      <div class="canvas-empty-visual">
+        <div class="empty-rings">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+        </div>
+        <div class="empty-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="8" width="48" height="48" rx="12" stroke="url(#emptyGrad)" stroke-width="2" stroke-dasharray="4 4"/>
+            <circle cx="24" cy="26" r="5" stroke="url(#emptyGrad)" stroke-width="2"/>
+            <path d="M14 50l10-14 8 10 6-8 10 12" stroke="url(#emptyGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M36 16l2 2 4-4" stroke="url(#emptyGrad)" stroke-width="2" stroke-linecap="round"/>
+            <defs><linearGradient id="emptyGrad" x1="8" y1="8" x2="56" y2="56"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs>
+          </svg>
+        </div>
+      </div>
+      <h3 class="canvas-empty-title">Virtual Studio Canvas</h3>
+      <p class="canvas-empty-desc">Your generated images will appear here.<br />Begin by adding a model and apparel in the left panel.</p>
+      <p class="canvas-credit">This app is managed by <strong>Sahil Sangani</strong>. To create your own personalised app like this, email <a href="mailto:Sahil@gptwala.com">Sahil@gptwala.com</a></p>
+
+      <!-- Custom Prompt Override (canvas) -->
+      <div class="canvas-prompt-override" id="canvas-prompt-override">
+        <div class="cpo-header">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+          Custom Prompt Override
+          <span class="cpo-badge">Advanced</span>
+        </div>
+        <p class="cpo-desc">For advanced users. If filled, this prompt will be used <strong>INSTEAD</strong> of the settings panel. You must still provide all required input images.</p>
+        <textarea id="canvas-custom-prompt" class="cpo-textarea" placeholder="e.g. A professional model in a red silk dress standing in a modern art gallery, dramatic rim lighting, shot on 85mm, f/1.8, cinematic teal-orange grade, 8K photorealistic…" rows="4"></textarea>
+        <div class="cpo-footer">
+          <span class="cpo-counter" id="cpo-counter">0 / 800</span>
+          <button class="cpo-clear-btn" id="cpo-clear-btn">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generating State -->
+    <div class="canvas-generating" id="canvas-generating" style="display:none;">
+      <div class="generating-header">
+        <div class="gen-spinner"></div>
+        <span>Generating your images…</span>
+      </div>
+      <div class="shimmer-grid" id="shimmer-grid"></div>
+      <div class="gen-progress">
+        <div class="gen-progress-bar" id="gen-progress-bar"></div>
+      </div>
+      <div class="gen-steps" id="gen-steps">
+        <span class="gen-step active">Analyzing inputs</span>
+        <span class="gen-step">Building scene</span>
+        <span class="gen-step">Rendering model</span>
+        <span class="gen-step">Applying style</span>
+        <span class="gen-step">Finalizing</span>
+      </div>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="canvas-results" id="canvas-results" style="display:none;">
+      <div class="results-grid" id="results-grid"></div>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────── RIGHT PANEL ── -->
+  <aside class="panel panel-right" id="panel-right">
+
+    <!-- Right Panel Tabs -->
+    <div class="right-tabs" role="tablist">
+      <button class="right-tab active" id="rtab-creative" data-rtab="creative" role="tab" aria-selected="true">Creative</button>
+      <button class="right-tab" id="rtab-scene" data-rtab="scene" role="tab" aria-selected="false">Scene</button>
+      <button class="right-tab" id="rtab-lighting" data-rtab="lighting" role="tab" aria-selected="false">Lighting</button>
+      <button class="right-tab" id="rtab-output" data-rtab="output" role="tab" aria-selected="false">Output</button>
+    </div>
+
+    <!-- ══════════ TAB: CREATIVE CONTROLS ══════════ -->
+    <div class="right-tab-content active" id="rtab-content-creative">
+
+      <!-- Looks -->
+      <div class="control-group">
+        <div class="control-group-header">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+          Looks
+        </div>
+        <div class="looks-save-row">
+          <input type="text" class="looks-input" id="look-name-input" placeholder="e.g., 'Summer Campaign Look'" />
+          <button class="btn-save-look" id="btn-save-look">Save</button>
+        </div>
+        <div class="saved-looks-list" id="saved-looks-list"></div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="control-group">
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span>Hyper Realism</span>
+            <span class="toggle-desc">Ultra-detailed photorealistic output</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-hyper-realism" />
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span>Cinematic Look</span>
+            <span class="toggle-desc">Film-grade color science &amp; grain</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-cinematic" />
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Color Grade -->
+      <div class="control-group">
+        <label class="ctrl-label" for="select-color-grade">Color Grade</label>
+        <select class="ctrl-select" id="select-color-grade">
+          <option value="none">None</option>
+          <option value="teal-orange">Cinematic Teal &amp; Orange</option>
+          <option value="vintage">Vintage Film</option>
+          <option value="bw">High-Contrast B&amp;W</option>
+          <option value="vibrant">Vibrant &amp; Punchy</option>
+          <option value="muted">Muted &amp; Moody</option>
+          <option value="warm">Warm &amp; Golden</option>
+          <option value="cool">Cool &amp; Crisp</option>
+        </select>
+      </div>
+
+      <!-- Shot Type / Pose -->
+      <div class="control-group">
+        <label class="ctrl-label">Shot Type / Pose</label>
+        <div class="pill-grid" id="shot-type-grid">
+          <button class="pill active" data-group="shot" data-value="full-body-front">Full Body Front</button>
+          <button class="pill" data-group="shot" data-value="hand-on-hip">Hand on Hip</button>
+          <button class="pill" data-group="shot" data-value="back-view">Back View</button>
+          <button class="pill" data-group="shot" data-value="3-4-view">3/4 View</button>
+          <button class="pill" data-group="shot" data-value="profile">Profile View</button>
+          <button class="pill" data-group="shot" data-value="waist-up">Waist-Up</button>
+          <button class="pill" data-group="shot" data-value="walking">Walking Motion</button>
+          <button class="pill" data-group="shot" data-value="elegant-lean">Elegant Lean</button>
+          <button class="pill" data-group="shot" data-value="sitting">Sitting Pose</button>
+          <button class="pill" data-group="shot" data-value="candid">Candid Look</button>
+          <button class="pill" data-group="shot" data-value="hero">Hero Pose</button>
+          <button class="pill" data-group="shot" data-value="action">Action Pose</button>
+          <button class="pill" data-group="shot" data-value="over-shoulder">Looking Over Shoulder</button>
+          <button class="pill" data-group="shot" data-value="leaning-forward">Leaning Forward</button>
+          <button class="pill" data-group="shot" data-value="hands-pockets">Hands in Pockets</button>
+          <button class="pill" data-group="shot" data-value="twirl">Dynamic Twirl</button>
+          <button class="pill" data-group="shot" data-value="pov-selfie">POV Selfie</button>
+          <button class="pill" data-group="shot" data-value="pov-mirror">POV Mirror Selfie</button>
+          <button class="pill" data-group="shot" data-value="pov-action">POV Action</button>
+          <button class="pill" data-group="shot" data-value="closeup-detail">Close-up Detail</button>
+          <button class="pill" data-group="shot" data-value="accessory-focus">Accessory Focus</button>
+          <button class="pill" data-group="shot" data-value="outfit-check">POV Outfit Check</button>
+        </div>
+      </div>
+
+      <!-- Model Expression -->
+      <div class="control-group">
+        <label class="ctrl-label">Model Expression</label>
+        <div class="pill-row" id="expression-row">
+          <button class="pill active" data-group="expression" data-value="neutral">Neutral</button>
+          <button class="pill" data-group="expression" data-value="soft-smile">Soft Smile</button>
+          <button class="pill" data-group="expression" data-value="confident">Confident</button>
+          <button class="pill" data-group="expression" data-value="joyful">Joyful</button>
+          <button class="pill" data-group="expression" data-value="serious">Serious</button>
+          <button class="pill" data-group="expression" data-value="playful">Playful</button>
+          <button class="pill" data-group="expression" data-value="serene">Serene</button>
+        </div>
+      </div>
+
+      <!-- Camera Angle -->
+      <div class="control-group">
+        <label class="ctrl-label">Camera Angle</label>
+        <div class="pill-row" id="angle-row">
+          <button class="pill active" data-group="angle" data-value="eye-level">Eye-Level</button>
+          <button class="pill" data-group="angle" data-value="low">Low Angle</button>
+          <button class="pill" data-group="angle" data-value="high">High Angle</button>
+          <button class="pill" data-group="angle" data-value="dutch">Dutch Angle</button>
+          <button class="pill" data-group="angle" data-value="worms-eye">Worm's Eye</button>
+          <button class="pill" data-group="angle" data-value="birds-eye">Bird's Eye</button>
+        </div>
+      </div>
+
+      <!-- Focal Length -->
+      <div class="control-group">
+        <label class="ctrl-label">Focal Length</label>
+        <div class="pill-row" id="focal-row">
+          <button class="pill" data-group="focal" data-value="24mm">24mm</button>
+          <button class="pill" data-group="focal" data-value="35mm">35mm</button>
+          <button class="pill active" data-group="focal" data-value="50mm">50mm</button>
+          <button class="pill" data-group="focal" data-value="85mm">85mm</button>
+          <button class="pill" data-group="focal" data-value="135mm">135mm</button>
+        </div>
+      </div>
+
+      <!-- Aperture -->
+      <div class="control-group">
+        <label class="ctrl-label">Aperture (Depth of Field)</label>
+        <div class="pill-row" id="aperture-row">
+          <button class="pill active" data-group="aperture" data-value="f1.8">Shallow (f/1.8)</button>
+          <button class="pill" data-group="aperture" data-value="f4">Mid-Range (f/4)</button>
+          <button class="pill" data-group="aperture" data-value="f8">Deep (f/8)</button>
+        </div>
+      </div>
+
+      <!-- Fabric Simulation -->
+      <div class="control-group">
+        <label class="ctrl-label">Fabric Simulation</label>
+        <div class="pill-row-wrap" id="fabric-row">
+          <button class="pill active" data-group="fabric" data-value="as-described">As Described</button>
+          <button class="pill" data-group="fabric" data-value="cotton">Cotton</button>
+          <button class="pill" data-group="fabric" data-value="silk">Silk</button>
+          <button class="pill" data-group="fabric" data-value="denim">Denim</button>
+          <button class="pill" data-group="fabric" data-value="wool">Wool</button>
+          <button class="pill" data-group="fabric" data-value="leather">Leather</button>
+          <button class="pill" data-group="fabric" data-value="linen">Linen</button>
+          <button class="pill" data-group="fabric" data-value="velvet">Velvet</button>
+        </div>
+      </div>
+
+      <!-- Model Styling -->
+      <div class="control-group">
+        <label class="ctrl-label">Model Styling</label>
+        <textarea class="ctrl-textarea" id="model-styling" placeholder="Describe hairstyle, makeup, accessories, skin tone…" rows="2"></textarea>
+      </div>
+
+      <!-- Garment Styling -->
+      <div class="control-group">
+        <label class="ctrl-label">Garment Styling</label>
+        <textarea class="ctrl-textarea" id="garment-styling" placeholder="Describe garment fit, tucking, layering details…" rows="2"></textarea>
+      </div>
+
+    </div><!-- end creative tab -->
+
+    <!-- ══════════ TAB: SCENE & STYLE ══════════ -->
+    <div class="right-tab-content" id="rtab-content-scene">
+
+      <!-- Scene Props -->
+      <div class="control-group">
+        <label class="ctrl-label" for="scene-props">Scene Props</label>
+        <textarea class="ctrl-textarea" id="scene-props" placeholder="e.g., holding a cup of coffee, sitting on a vintage chair" rows="2"></textarea>
+      </div>
+
+      <!-- Environmental Effects -->
+      <div class="control-group">
+        <label class="ctrl-label" for="env-effects">Environmental Effects</label>
+        <textarea class="ctrl-textarea" id="env-effects" placeholder="e.g., a gentle breeze blowing through hair, light drizzle, thick fog" rows="2"></textarea>
+      </div>
+
+      <!-- Background Upload -->
+      <div class="control-group">
+        <label class="ctrl-label">Upload Custom Background</label>
+        <div class="upload-zone upload-zone-sm" id="bg-upload-zone" data-target="background">
+          <div class="upload-preview upload-preview-sm" id="bg-preview" style="display:none;">
+            <img id="bg-preview-img" src="" alt="Background preview" />
+            <button class="preview-remove" data-target="background" aria-label="Remove background">×</button>
+          </div>
+          <div class="upload-placeholder" id="bg-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 16l5-5 4 4 3-3 4 4"/><circle cx="8" cy="9" r="1.5"/></svg>
+            <p>Drop background image here</p>
+            <input type="file" id="bg-file-input" accept="image/*" hidden />
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Background Generator -->
+      <div class="control-group">
+        <label class="ctrl-label">AI Background Generator</label>
+        <div class="ai-bg-row">
+          <input type="text" class="ctrl-input" id="ai-bg-prompt" placeholder="e.g., A minimalist art gallery with a concrete bench, lit by a soft skylight." />
+          <button class="btn-gen-bg" id="btn-gen-bg">Generate</button>
+        </div>
+      </div>
+
+      <!-- Background Presets -->
+      <div class="control-group">
+        <label class="ctrl-label">Background Presets</label>
+
+        <div class="preset-category">
+          <span class="preset-cat-label">Studio &amp; Minimal</span>
+          <div class="preset-grid" id="bg-preset-grid-studio">
+            <button class="preset-thumb" data-bg="studio-white" style="background:linear-gradient(135deg,#fff 0%,#f0f0f0 100%)"><span>Studio White</span></button>
+            <button class="preset-thumb" data-bg="studio-grey" style="background:linear-gradient(135deg,#9ca3af 0%,#6b7280 100%)"><span>Studio Grey</span></button>
+            <button class="preset-thumb" data-bg="studio-black" style="background:linear-gradient(135deg,#1f2937 0%,#111827 100%)"><span>Studio Black</span></button>
+            <button class="preset-thumb" data-bg="pastel-grad" style="background:linear-gradient(135deg,#fda4af 0%,#c084fc 50%,#60a5fa 100%)"><span>Pastel Gradient</span></button>
+            <button class="preset-thumb" data-bg="sunset-grad" style="background:linear-gradient(135deg,#f97316 0%,#ec4899 50%,#8b5cf6 100%)"><span>Sunset Gradient</span></button>
+            <button class="preset-thumb" data-bg="gallery" style="background:linear-gradient(135deg,#e5e7eb 0%,#d1d5db 100%)"><span>Minimalist Gallery</span></button>
+          </div>
+        </div>
+
+        <div class="preset-category">
+          <span class="preset-cat-label">Architectural &amp; Urban</span>
+          <div class="preset-grid">
+            <button class="preset-thumb" data-bg="city-street" style="background:linear-gradient(135deg,#374151 0%,#6b7280 100%)"><span>City Street</span></button>
+            <button class="preset-thumb" data-bg="modern-interior" style="background:linear-gradient(135deg,#fef3c7 0%,#d97706 100%)"><span>Modern Interior</span></button>
+            <button class="preset-thumb" data-bg="brutalist" style="background:linear-gradient(135deg,#9ca3af 0%,#4b5563 100%)"><span>Brutalist Arch</span></button>
+            <button class="preset-thumb" data-bg="cozy-cafe" style="background:linear-gradient(135deg,#92400e 0%,#d97706 100%)"><span>Cozy Cafe</span></button>
+            <button class="preset-thumb" data-bg="industrial" style="background:linear-gradient(135deg,#374151 0%,#1f2937 100%)"><span>Industrial Loft</span></button>
+            <button class="preset-thumb" data-bg="neon-city" style="background:linear-gradient(135deg,#1e1b4b 0%,#4c1d95 50%,#831843 100%)"><span>Neon Cityscape</span></button>
+            <button class="preset-thumb" data-bg="rooftop-sunset" style="background:linear-gradient(135deg,#f97316 0%,#dc2626 100%)"><span>Rooftop at Sunset</span></button>
+            <button class="preset-thumb" data-bg="luxury-hotel" style="background:linear-gradient(135deg,#fcd34d 0%,#92400e 100%)"><span>Luxury Hotel Lobby</span></button>
+          </div>
+        </div>
+
+        <div class="preset-category">
+          <span class="preset-cat-label">Nature &amp; Outdoors</span>
+          <div class="preset-grid">
+            <button class="preset-thumb" data-bg="sunny-beach" style="background:linear-gradient(135deg,#60a5fa 0%,#fbbf24 100%)"><span>Sunny Beach</span></button>
+            <button class="preset-thumb" data-bg="lush-forest" style="background:linear-gradient(135deg,#15803d 0%,#166534 100%)"><span>Lush Forest</span></button>
+            <button class="preset-thumb" data-bg="rooftop-garden" style="background:linear-gradient(135deg,#4ade80 0%,#16a34a 100%)"><span>Rooftop Garden</span></button>
+            <button class="preset-thumb" data-bg="desert-dune" style="background:linear-gradient(135deg,#fde68a 0%,#d97706 100%)"><span>Desert Dune</span></button>
+            <button class="preset-thumb" data-bg="mountain" style="background:linear-gradient(135deg,#93c5fd 0%,#1d4ed8 100%)"><span>Mountain Vista</span></button>
+            <button class="preset-thumb" data-bg="flower-field" style="background:linear-gradient(135deg,#f9a8d4 0%,#a855f7 100%)"><span>Flower Field</span></button>
+            <button class="preset-thumb" data-bg="autumn-forest" style="background:linear-gradient(135deg,#dc2626 0%,#92400e 100%)"><span>Autumn Forest</span></button>
+          </div>
+        </div>
+
+        <div class="preset-category">
+          <span class="preset-cat-label">Themed &amp; Artistic</span>
+          <div class="preset-grid">
+            <button class="preset-thumb" data-bg="old-library" style="background:linear-gradient(135deg,#78350f 0%,#92400e 100%)"><span>Old Library</span></button>
+            <button class="preset-thumb" data-bg="surreal" style="background:linear-gradient(135deg,#7c3aed 0%,#db2777 50%,#f97316 100%)"><span>Surreal Dreamscape</span></button>
+            <button class="preset-thumb" data-bg="abstract" style="background:linear-gradient(135deg,#06b6d4 0%,#7c3aed 100%)"><span>Abstract Shapes</span></button>
+            <button class="preset-thumb" data-bg="vintage-room" style="background:linear-gradient(135deg,#d97706 0%,#92400e 100%)"><span>Vintage Room</span></button>
+            <button class="preset-thumb" data-bg="sci-fi" style="background:linear-gradient(135deg,#0891b2 0%,#1e1b4b 100%)"><span>Sci-Fi Corridor</span></button>
+            <button class="preset-thumb" data-bg="graffiti" style="background:linear-gradient(135deg,#be185d 0%,#7c3aed 50%,#1d4ed8 100%)"><span>Graffiti Wall</span></button>
+            <button class="preset-thumb" data-bg="art-deco" style="background:linear-gradient(135deg,#fcd34d 0%,#92400e 100%)"><span>Art Deco Lobby</span></button>
+            <button class="preset-thumb" data-bg="cyberpunk" style="background:linear-gradient(135deg,#4c1d95 0%,#831843 100%)"><span>Cyberpunk Alley</span></button>
+            <button class="preset-thumb" data-bg="bohemian" style="background:linear-gradient(135deg,#f97316 0%,#dc2626 50%,#9333ea 100%)"><span>Bohemian Cafe</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Style Reference -->
+      <div class="control-group">
+        <label class="ctrl-label">Style Reference</label>
+        <p class="ctrl-hint">Upload an image to guide the aesthetic, color palette, and mood.</p>
+        <div class="upload-zone upload-zone-sm" id="style-upload-zone" data-target="style">
+          <div class="upload-preview upload-preview-sm" id="style-preview" style="display:none;">
+            <img id="style-preview-img" src="" alt="Style reference preview" />
+            <button class="preview-remove" data-target="style" aria-label="Remove style reference">×</button>
+          </div>
+          <div class="upload-placeholder" id="style-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M7 13.5L10.5 10 13 12.5 15.5 9 17 11"/></svg>
+            <p>Drop style reference image here</p>
+            <input type="file" id="style-file-input" accept="image/*" hidden />
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end scene tab -->
+
+    <!-- ══════════ TAB: LIGHTING ══════════ -->
+    <div class="right-tab-content" id="rtab-content-lighting">
+
+      <!-- Time of Day -->
+      <div class="control-group">
+        <label class="ctrl-label">Time of Day</label>
+        <div class="pill-row" id="time-of-day-row">
+          <button class="pill active" data-group="tod" data-value="none">None</button>
+          <button class="pill" data-group="tod" data-value="sunrise">Sunrise</button>
+          <button class="pill" data-group="tod" data-value="midday">Midday</button>
+          <button class="pill" data-group="tod" data-value="golden-hour">Golden Hour</button>
+          <button class="pill" data-group="tod" data-value="twilight">Twilight</button>
+          <button class="pill" data-group="tod" data-value="night">Night</button>
+        </div>
+      </div>
+
+      <!-- Match Model Lighting -->
+      <div class="control-group">
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span>Match Model's Lighting</span>
+            <span class="toggle-desc" id="match-lighting-hint">Upload a model image to enable.</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-match-lighting" disabled />
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Lighting Presets -->
+      <div class="control-group">
+        <label class="ctrl-label">Lighting Presets</label>
+        <div class="lighting-grid" id="lighting-preset-grid">
+          <button class="lighting-card active" data-group="lighting" data-value="studio-softbox">
+            <div class="lighting-icon">💡</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Studio Softbox</span>
+              <span class="lighting-desc">Soft, diffused studio lighting from the front.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="flat-even">
+            <div class="lighting-icon">☀️</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Flat &amp; Even</span>
+              <span class="lighting-desc">Bright, even, shadowless — perfect for e-commerce.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="golden-hour">
+            <div class="lighting-icon">🌅</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Golden Hour</span>
+              <span class="lighting-desc">Warm, golden sunlight from the side.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="dramatic-hard">
+            <div class="lighting-icon">🎭</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Dramatic Hard Light</span>
+              <span class="lighting-desc">Strong shadows for bold, editorial looks.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="midday-sun">
+            <div class="lighting-icon">🌞</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Midday Sun</span>
+              <span class="lighting-desc">Bright, direct midday sun creating harsh, defined shadows.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="overcast">
+            <div class="lighting-icon">☁️</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Overcast Day</span>
+              <span class="lighting-desc">Soft, diffused light minimizing shadows.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="blue-hour">
+            <div class="lighting-icon">🌙</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Blue Hour</span>
+              <span class="lighting-desc">Cool, ambient twilight light.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="dappled">
+            <div class="lighting-icon">🌿</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Dappled Sunlight</span>
+              <span class="lighting-desc">Natural light filtering through leaves.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="window-light">
+            <div class="lighting-icon">🪟</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Window Light</span>
+              <span class="lighting-desc">Soft, directional Rembrandt-style window light.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="rim-light">
+            <div class="lighting-icon">✨</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Rim Light</span>
+              <span class="lighting-desc">Strong backlighting creating a bright outline.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="neon-glow">
+            <div class="lighting-icon">🌈</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Neon Glow</span>
+              <span class="lighting-desc">Vibrant neon casting pink and blue hues.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="moonlight">
+            <div class="lighting-icon">🌛</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Moonlight</span>
+              <span class="lighting-desc">Cool, low-light illuminated by moonlight.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="split">
+            <div class="lighting-icon">🎬</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Split Lighting</span>
+              <span class="lighting-desc">Classic portrait split — light &amp; shadow.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="candlelight">
+            <div class="lighting-icon">🕯️</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Candlelight</span>
+              <span class="lighting-desc">Warm, flickering intimate candlelight.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="projector">
+            <div class="lighting-icon">📽️</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Projector Light</span>
+              <span class="lighting-desc">Patterns from a projector cast onto the model.</span>
+            </div>
+          </button>
+          <button class="lighting-card" data-group="lighting" data-value="gobo">
+            <div class="lighting-icon">🎨</div>
+            <div class="lighting-info">
+              <span class="lighting-name">Gobo Patterns</span>
+              <span class="lighting-desc">Artistic shadows from a patterned gobo screen.</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end lighting tab -->
+
+    <!-- ══════════ TAB: OUTPUT ══════════ -->
+    <div class="right-tab-content" id="rtab-content-output">
+
+      <!-- Aspect Ratio -->
+      <div class="control-group">
+        <label class="ctrl-label">Aspect Ratio</label>
+        <div class="aspect-ratio-row" id="aspect-ratio-row">
+          <button class="aspect-btn active" data-group="aspect" data-value="portrait" id="aspect-portrait">
+            <div class="aspect-icon aspect-portrait-icon"></div>
+            <span>Portrait</span>
+          </button>
+          <button class="aspect-btn" data-group="aspect" data-value="square" id="aspect-square">
+            <div class="aspect-icon aspect-square-icon"></div>
+            <span>Square</span>
+          </button>
+          <button class="aspect-btn" data-group="aspect" data-value="landscape" id="aspect-landscape">
+            <div class="aspect-icon aspect-landscape-icon"></div>
+            <span>Landscape</span>
+          </button>
+          <button class="aspect-btn" data-group="aspect" data-value="stories" id="aspect-stories">
+            <div class="aspect-icon aspect-stories-icon"></div>
+            <span>Stories</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Number of Images -->
+      <div class="control-group">
+        <label class="ctrl-label">Number of Images</label>
+        <div class="pill-row" id="num-images-row">
+          <button class="pill active" data-group="num-images" data-value="1">1</button>
+          <button class="pill" data-group="num-images" data-value="2">2</button>
+          <button class="pill" data-group="num-images" data-value="4">4</button>
+          <button class="pill" data-group="num-images" data-value="6">6</button>
+          <button class="pill" data-group="num-images" data-value="8">8</button>
+        </div>
+      </div>
+
+      <!-- E-commerce Pack -->
+      <div class="control-group">
+        <div class="pack-header">
+          <div>
+            <label class="ctrl-label">E-commerce Pack</label>
+            <p class="ctrl-hint">Automatically generate a standard set of shots for your product page.</p>
+          </div>
+        </div>
+        <div class="pack-options" id="ecom-pack-options">
+          <button class="pack-btn active" data-group="ecom-pack" data-value="off">Off</button>
+          <button class="pack-btn" data-group="ecom-pack" data-value="essential">Essential</button>
+          <button class="pack-btn" data-group="ecom-pack" data-value="plus">Plus</button>
+          <button class="pack-btn" data-group="ecom-pack" data-value="dynamic">Dynamic</button>
+          <button class="pack-btn" data-group="ecom-pack" data-value="editorial">Editorial</button>
+          <button class="pack-btn" data-group="ecom-pack" data-value="pov">POV</button>
+        </div>
+      </div>
+
+      <!-- Social Media Pack -->
+      <div class="control-group">
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span>Social Media Pack</span>
+            <span class="toggle-desc">4 lifestyle shots in 1:1 and 9:16</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-social-pack" />
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Complete Asset Pack -->
+      <div class="control-group">
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <span>Complete Asset Pack</span>
+            <span class="toggle-desc">Full set of 8 e-commerce + social assets</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-complete-pack" />
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Custom Prompt Override -->
+      <div class="control-group">
+        <label class="ctrl-label">Custom Prompt Override</label>
+        <p class="ctrl-hint">This prompt will completely replace the auto-generated prompt.</p>
+        <textarea class="ctrl-textarea" id="custom-prompt-override" placeholder="Override all settings with a fully custom prompt…" rows="3"></textarea>
+      </div>
+
+    </div><!-- end output tab -->
+
+  </aside><!-- end panel-right -->
+
+</main>
+
+<!-- ══════════════════════════════════════════ API KEY MODAL ══ -->
+<div class="modal-overlay" id="apikey-modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Image Generation Settings">
+  <div class="modal modal-apikey">
+    <div class="modal-header">
+      <div class="apikey-modal-title">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+        AI Generation Engine
+      </div>
+      <button class="modal-close" id="apikey-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="apikey-body">
+
+      <!-- Provider Selection -->
+      <div class="provider-section">
+        <label class="ctrl-label">Choose Provider</label>
+        <div class="provider-cards">
+
+          <label class="provider-card" id="pcard-pollinations">
+            <input type="radio" name="provider" value="pollinations" id="prov-pollinations" checked />
+            <div class="pcard-inner">
+              <div class="pcard-badge free">FREE</div>
+              <div class="pcard-icon">🌸</div>
+              <div class="pcard-name">Pollinations AI</div>
+              <div class="pcard-desc">No account needed. Unlimited free generation using FLUX.</div>
+            </div>
+          </label>
+
+          <label class="provider-card" id="pcard-huggingface">
+            <input type="radio" name="provider" value="huggingface" id="prov-huggingface" />
+            <div class="pcard-inner">
+              <div class="pcard-badge free">FREE</div>
+              <div class="pcard-icon">🤗</div>
+              <div class="pcard-name">Hugging Face</div>
+              <div class="pcard-desc">Free account token. Uses FLUX.1-schnell model.</div>
+            </div>
+          </label>
+
+          <label class="provider-card" id="pcard-openai">
+            <input type="radio" name="provider" value="openai" id="prov-openai" />
+            <div class="pcard-inner">
+              <div class="pcard-badge paid">PAID</div>
+              <div class="pcard-icon">⚡</div>
+              <div class="pcard-name">OpenAI DALL-E</div>
+              <div class="pcard-desc">Premium DALL-E 3 quality. ~$0.04 per image.</div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Pollinations Settings -->
+      <div class="provider-settings" id="settings-pollinations">
+        <div class="apikey-info" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);">
+          <div class="apikey-info-icon">✅</div>
+          <div>
+            <p><strong>No API key required!</strong> Pollinations AI is completely free.</p>
+            <p class="apikey-note">Powered by FLUX — high quality, fast image generation. Just click Save &amp; Use below.</p>
+          </div>
+        </div>
+        <div class="apikey-model-row">
+          <label class="ctrl-label" for="pollinations-model-select">FLUX Model</label>
+          <select class="ctrl-select" id="pollinations-model-select">
+            <option value="flux">FLUX (Balanced — Recommended)</option>
+            <option value="flux-realism">FLUX Realism (Photorealistic)</option>
+            <option value="turbo">Turbo (Fastest)</option>
+            <option value="flux-anime">FLUX Anime (Stylized)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Hugging Face Settings -->
+      <div class="provider-settings" id="settings-huggingface" style="display:none;">
+        <div class="apikey-info">
+          <div class="apikey-info-icon">🤗</div>
+          <div>
+            <p>Create a <strong>free Hugging Face account</strong> and generate a <strong>Read token</strong>.</p>
+            <p class="apikey-note">Uses FLUX.1-schnell — fast, high quality, free tier available.</p>
+          </div>
+        </div>
+        <div class="apikey-input-wrap">
+          <label class="ctrl-label" for="hf-token-input">Hugging Face Token</label>
+          <div class="apikey-field-row">
+            <input type="password" class="ctrl-input" id="hf-token-input" placeholder="hf_…" autocomplete="off" />
+            <button class="btn-apikey-toggle" id="btn-hf-toggle" title="Show/hide">👁</button>
+          </div>
+          <p class="apikey-get-link">Get a free token → <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a></p>
+        </div>
+        <div class="apikey-model-row">
+          <label class="ctrl-label" for="hf-model-select">Model</label>
+          <select class="ctrl-select" id="hf-model-select">
+            <option value="black-forest-labs/FLUX.1-schnell">FLUX.1-schnell (Fast, Free)</option>
+            <option value="stabilityai/stable-diffusion-xl-base-1.0">Stable Diffusion XL</option>
+            <option value="Lykon/dreamshaper-xl-1-0">DreamShaper XL</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- OpenAI Settings -->
+      <div class="provider-settings" id="settings-openai" style="display:none;">
+        <div class="apikey-info">
+          <div class="apikey-info-icon">🔑</div>
+          <div>
+            <p>Enter your <strong>OpenAI API Key</strong> for DALL-E 3 generation.</p>
+            <p class="apikey-note">Stored in your browser only. Never sent anywhere except OpenAI.</p>
+          </div>
+        </div>
+        <div class="apikey-model-row">
+          <label class="ctrl-label" for="apikey-model-select">Model</label>
+          <select class="ctrl-select" id="apikey-model-select">
+            <option value="dall-e-3">DALL-E 3 (~$0.04/image)</option>
+            <option value="dall-e-2">DALL-E 2 (~$0.02/image)</option>
+          </select>
+        </div>
+        <div class="apikey-quality-row" id="apikey-quality-row">
+          <label class="ctrl-label" for="apikey-quality-select">Quality</label>
+          <select class="ctrl-select" id="apikey-quality-select">
+            <option value="standard">Standard</option>
+            <option value="hd">HD (2× cost)</option>
+          </select>
+        </div>
+        <div class="apikey-input-wrap">
+          <label class="ctrl-label" for="apikey-input">API Key</label>
+          <div class="apikey-field-row">
+            <input type="password" class="ctrl-input apikey-input" id="apikey-input" placeholder="sk-proj-…" autocomplete="off" />
+            <button class="btn-apikey-toggle" id="btn-apikey-toggle" title="Show/hide">👁</button>
+          </div>
+          <p class="apikey-get-link"><a href="https://platform.openai.com/api-keys" target="_blank">Get key at platform.openai.com →</a></p>
+        </div>
+      </div>
+
+      <div class="apikey-status" id="apikey-status" style="display:none;"></div>
+    </div>
+
+    <div class="modal-footer apikey-footer">
+      <button class="btn-apikey-clear" id="btn-apikey-clear">Reset</button>
+      <button class="btn-apikey-save" id="btn-apikey-save">Save &amp; Use →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ WEBCAM MODAL ══ -->
+<div class="modal-overlay" id="webcam-modal" style="display:none;" role="dialog" aria-modal="true" aria-label="Webcam Capture">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Capture Photo</h3>
+      <button class="modal-close" id="webcam-close" aria-label="Close">×</button>
+    </div>
+    <div class="webcam-container">
+      <video id="webcam-video" autoplay playsinline></video>
+      <canvas id="webcam-canvas" style="display:none;"></canvas>
+      <div class="webcam-overlay"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-capture" id="btn-capture">
+        <span class="capture-ring"></span>
+        <span class="capture-dot"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ IMAGE MODAL ══ -->
+<div class="modal-overlay" id="image-modal" style="display:none;" role="dialog" aria-modal="true">
+  <div class="modal modal-image">
+    <button class="modal-close" id="image-modal-close" aria-label="Close">×</button>
+    <img id="modal-image-src" src="" alt="Generated image full size" />
+    <div class="modal-image-actions">
+      <button class="btn-download-single" id="btn-download-single">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TOAST ══ -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
